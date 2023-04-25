@@ -7,13 +7,9 @@ public class SquareGenerator : MonoBehaviour
     [SerializeField] private GameObject squarePrefab;
     [SerializeField] private Transform squareParent;
 
-    private void Start()
+    public GameObject[,] GenerateSquares()
     {
-        GenerateSquare();
-    }
-
-    public void GenerateSquare()
-    {
+        GameObject[,] result = new GameObject[9,9];
         for (int i = -4; i <= 4; i++)
         {
             for(int j = 0; j < 9; j++)
@@ -21,7 +17,10 @@ public class SquareGenerator : MonoBehaviour
                 var square = Instantiate(squarePrefab);
                 square.transform.SetParent(squareParent);
                 square.transform.localPosition = new Vector3(i * 90, j * 90, 0);
+
+                result[i + 4, j] = square;
             }
         }
+        return result;
     }
 }
