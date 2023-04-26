@@ -7,113 +7,209 @@ using System;
 
 public class NumberGenerator
 {
+    private int[,][,] numberArray;
+    private readonly int[] numbers = new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
     public int[,][,] GenerateNumbers()
     {
-        int[,][,] numberArray = new int[3,3][,];
+        numberArray = new int[3,3][,];
+
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
                 numberArray[i, j] = new int[3, 3] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-                (int, int)[] taples = new (int, int)[9]
-                {
-                        (0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)
-                };
+            }
+        }
 
-                if (i == 0 && j == 0)
+        numberArray[0, 0][0, 0] = numbers.RandomGet();
+
+        try
+        {
+            for (int m = 1; m < 17; m++)
+            {
+                int i, j, k, l;
+                int[] usableNumbers;
+
+                for (int n = 0; n < m; n++)
                 {
-                    for (int n = 1; n <= 9; n++)
-                    {
-                        var taple = taples.RandomGet();
-                        numberArray[i, j][taple.Item1, taple.Item2] = n;
-                        taples = taples.Where(x => x != taple).ToArray();
-                    }
+                    i = m / 3;
+                    j = n / 3;
+                    k = m - i * 3;
+                    l = n - j * 3;
+                    usableNumbers = GetUsableNumbers(i, j, k, l);
+                    numberArray[i, j][k, l] = usableNumbers.RandomGet();
+
+                    i = n / 3;
+                    j = m / 3;
+                    k = n - i * 3;
+                    l = m - j * 3;
+                    usableNumbers = GetUsableNumbers(i, j, k, l);
+                    numberArray[i, j][k, l] = usableNumbers.RandomGet();
                 }
-                else if (i == 0)
+
+                i = m / 3;
+                j = m / 3;
+                k = m - i * 3;
+                l = m - j * 3;
+                usableNumbers = GetUsableNumbers(i, j, k, l);
+                numberArray[i, j][k, l] = usableNumbers.RandomGet();
+            }
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+
+        }
+        
+
+        //for (int i = 0; i < 3; i++)
+        //{
+        //    for (int j = 0; j < 3; j++)
+        //    {
+        //        //‚±‚±‚É–ß‚é
+        //        try
+        //        {
+        //            for (int k = 0; k < 3; k++)
+        //            {
+        //                for (int l = 0; l < 3; l++)
+        //                {
+        //                    var usableNumbers = GetUsableNumbers(i, j, k, l);
+        //                    var number = usableNumbers.RandomGet();
+        //                    numberArray[i, j][k, l] = number;
+        //                }
+        //            }
+        //        }
+        //        catch (ArgumentOutOfRangeException)
+        //        {
+        //            numberArray[i, j] = new int[3, 3] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+        //            j--;
+        //        }
+        //    }
+        //}
+
+
+
+        //numberArray[0, 0] = GenerateFreeNumbers();
+        //numberArray[1, 1] = GenerateFreeNumbers();
+        //numberArray[2, 2] = GenerateFreeNumbers();
+
+        //GenerateBlockNumbers(0, 2);
+        //GenerateBlockNumbers(2, 0);
+
+        //GenerateBlockNumbers(0, 1);
+        //GenerateBlockNumbers(2, 1);
+        //GenerateBlockNumbers(1, 0);
+        //GenerateBlockNumbers(1, 2);
+
+        return numberArray;
+    }
+
+    private int[,] GenerateFreeNumbers()
+    {
+        var array= new int[3, 3] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+        (int, int)[] taples = new (int, int)[9]
+        {
+            (0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)
+        };
+
+        for (int n = 1; n <= 9; n++)
+        {
+            var taple = taples.RandomGet();
+            array[taple.Item1, taple.Item2] = n;
+            taples = taples.Where(x => x != taple).ToArray();
+        }
+        return array;
+    }
+
+    private void GenerateBlockNumbers(int i, int j)
+    {
+        numberArray[i, j] = new int[3, 3] { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+        (int, int)[] taples = new (int, int)[9]
+        {
+                    (0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)
+        };
+
+        for (int n = 1; n <= 9; n++)
+        {
+            List<int> vList = new List<int>();
+            List<int> hList = new List<int>();
+
+            for (int k = -2; k <= 2; k++)
+            {
+                if (i + k < 0 || 2 < i + k) continue;
+
+                for (int l = -2; l <= 2; l++)
                 {
-                    for (int n = 1; n <= 9; n++)
+                    if (k == 0 && l == 0) continue;
+                    if (k != 0 && l != 0) continue;
+
+                    if (j + l < 0 || 2 < j + l) continue;
+
+                    if (numberArray[i + k, j + l] == null) continue;
+
+                    var array = numberArray[i + k, j + l];
+                    int index = 0;
+                    foreach (var num in array)
                     {
-                        int[] vArray = new int[j];
-                        for(int m = 0; m < j; m++)
+                        if (n == num)
                         {
-                            var array = numberArray[i, m];
-                            int t = 0;
-                            foreach(var num in array)
+                            if (k == 0)
                             {
-                                if (n == num)
-                                {
-                                    var v = t / 3;
-                                    vArray[m] = v;
-                                    break;
-                                }
-                                t++;
+                                vList.Add(index / 3);
+                                break;
+                            }
+                            else if (l == 0)
+                            {
+                                hList.Add(index % 3);
+                                break;
                             }
                         }
-
-                        var tmpTaples = taples.Where(x => vArray.Any(v => v != x.Item1)).ToArray();
-                        var taple = tmpTaples.RandomGet();
-                        numberArray[i, j][taple.Item1, taple.Item2] = n;
-                        taples = taples.Where(x => x != taple).ToArray();
-                    }
-                }
-                else if (j == 0)
-                {
-                    for (int n = 1; n <= 9; n++)
-                    {
-                        int[] hArray = new int[i];
-                        for (int m = 0; m < i; m++)
-                        {
-                            var array = numberArray[m, j];
-                            int t = 0;
-                            foreach (var num in array)
-                            {
-                                if (n == num)
-                                {
-                                    var h = t % 3;
-                                    hArray[m] = h;
-                                    break;
-                                }
-                                t++;
-                            }
-                        }
-
-                        var tmpTaples = taples.Where(x => hArray.Any(h => h != x.Item2)).ToArray();
-                        var taple = tmpTaples.RandomGet();
-                        numberArray[i, j][taple.Item1, taple.Item2] = n;
-                        taples = taples.Where(x => x != taple).ToArray();
-                    }
-                }
-                else
-                {
-                    for (int n = 1; n <= 9; n++)
-                    {
-                        for (int m = 0; m < i; m++)
-                        {
-                            for(int s = 0; s < j; s++)
-                            {
-                                var array = numberArray[m, s];
-                                int t = 0;
-                                foreach (var num in array)
-                                {
-                                    if (t == num)
-                                    {
-                                        var v = t / 3;
-                                        var h = t % 3;
-                                        var tmpTaples = taples.Where(x => x.Item1 != v && x.Item2 != h).ToArray();
-                                        var taple = tmpTaples.RandomGet();
-                                        numberArray[i, j][taple.Item1, taple.Item2] = n;
-                                        taples = taples.Where(x => x != taple).ToArray();
-                                        break;
-                                    }
-                                    t++;
-                                }
-                                if (t != array.Length) break;
-                            }
-                        }
+                        index++;
                     }
                 }
             }
+
+            var tmpTaples = taples.Where(x => !vList.Any(v => v == x.Item1) && !hList.Any(h => h == x.Item2)).ToArray();
+            var taple = tmpTaples.RandomGet();
+            numberArray[i, j][taple.Item1, taple.Item2] = n;
+            taples = taples.Where(x => x != taple).ToArray();
         }
-        return numberArray;
+    }
+
+    private int[] GetUsableNumbers(int i, int j, int k, int l)
+    {
+        var hashSet = new HashSet<int>();
+        
+        foreach(var n in numberArray[i, j])
+        {
+            hashSet.Add(n);
+        }
+
+        for (int y = -2; y <= 2; y++)
+        {
+            if (i + y < 0 || 2 < i + y) continue;
+
+            for (int x = -2; x <= 2; x++)
+            {
+                if (!(y == 0 ^ x == 0)) continue;
+
+                if (j + x < 0 || 2 < j + x) continue;
+
+                if (y == 0)
+                {
+                    hashSet.Add(numberArray[i, j + x][k, 0]);
+                    hashSet.Add(numberArray[i, j + x][k, 1]);
+                    hashSet.Add(numberArray[i, j + x][k, 2]);
+                }
+                else if (x == 0)
+                {
+                    hashSet.Add(numberArray[i + y, j][0, l]);
+                    hashSet.Add(numberArray[i + y, j][1, l]);
+                    hashSet.Add(numberArray[i + y, j][2, l]);
+                }
+            }
+        }
+
+        return numbers.Except(hashSet).ToArray();
     }
 }

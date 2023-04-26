@@ -40,7 +40,7 @@ public class NumberPresenter : ControllerBase, IInitializable
                             for(int l = 0; l < 3; l++)
                             {
                                 int squareX = i * 3 + k;
-                                int squareY = j * 3 + l;
+                                int squareY = 8-(j * 3 + l);
 
                                 try
                                 {
