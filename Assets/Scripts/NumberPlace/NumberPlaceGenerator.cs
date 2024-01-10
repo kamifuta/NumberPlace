@@ -3,46 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Kamifuta.MyUtil;
-using System;
-using Random = UnityEngine.Random;
-using System.Threading;
 
 namespace NumberPlace
 {
     public class NumberPlaceGenerator : MonoBehaviour
     {
-        private int[,][,] numberPlace = new int[3,3][,];
+        [SerializeField] private NumberPlaceManager numberPlaceManager;
+        [SerializeField] private NumberPlaceViewer numberPlaceViewer;
 
         private readonly IEnumerable<int> numberArray = Enumerable.Range(1, 9);
 
-        private void Start()
-        {
-            InitNumberPlace();
-            GenerateNumberPlace();
-            
-            Debug.Log("ê∂ê¨Ç™äÆóπÇµÇ‹ÇµÇΩ");
-        }
-
-        private void InitNumberPlace()
-        {
-            for(int x = 0; x < 3; x++)
-            {
-                for(int y = 0; y < 3; y++)
-                {
-                    numberPlace[y, x] = new int[3, 3];
-
-                    for (int v = 0; v < 3; v++)
-                    {
-                        for (int h = 0; h < 3; h++)
-                        {
-                            numberPlace[y, x][h, v] = 0;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void GenerateNumberPlace()
+        public void GenerateNumberPlace()
         {
             AlineHorizintalNumberPlace();
             AlineVerticalNumberPlace();
@@ -58,12 +29,12 @@ namespace NumberPlace
 
             for(int y = 0; y < 3; y++)
             {
-                for (int h = 0; h < 3; h++)
+                for (int v = 0; v < 3; v++)
                 {
                     for (int x = 0; x < 3; x++)
                     {
                         int block = y * 3 + x;
-                        int line = y * 3 + h;
+                        int line = y * 3 + v;
                         IEnumerable<int> usedNumberList = setNumbersListOnBlock.Where(t => t.block == block).Concat(setNumbersListOnLine.Where(t => t.line == line)).SelectMany(t => t.numberList);
                         IEnumerable<int> usableNumbers = numberArray.Except(usedNumberList).ToArray();
                         IEnumerable<IEnumerable<int>> selectablePermutationList = usableNumbers.Permutation(3);
@@ -80,9 +51,9 @@ namespace NumberPlace
                         setNumbersListOnBlock.Add((block, permutation));
                         setNumbersListOnLine.Add((line, permutation));
 
-                        for (int v = 0; v < 3; v++)
+                        for (int h = 0; h < 3; h++)
                         {
-                            numberPlace[y, x][h, v] = permutation.ElementAt(v);
+                            numberPlaceManager.SetNumber(x, y, h, v, permutation.ElementAt(h));
                         }
                     }
                 }
@@ -102,16 +73,16 @@ namespace NumberPlace
                 {
                     int[][] doubleArray = new int[3][];
 
-                    for (int h = 0; h < 3; h++)
+                    for (int v = 0; v < 3; v++)
                     {
                         int[] array = new int[3];
 
-                        for (int v = 0; v < 3; v++)
+                        for (int h = 0; h < 3; h++)
                         {
-                            array[v] = numberPlace[y, x][h, v];
+                            array[h] = numberPlaceManager.GetNumber(x, y, h, v);
                         }
 
-                        doubleArray[h] = array;
+                        doubleArray[v] = array;
                     }
 
                     var list = PermutationForDoubleList(doubleArray).ToArray();
@@ -122,7 +93,7 @@ namespace NumberPlace
                 IEnumerable<int>[] middleNumberList = new IEnumerable<int>[3] { Enumerable.Empty<int>(), Enumerable.Empty<int>(), Enumerable.Empty<int>() };
                 IEnumerable<int>[] bottomNumberList = new IEnumerable<int>[3] { Enumerable.Empty<int>(), Enumerable.Empty<int>(), Enumerable.Empty<int>() };
 
-                for (int v = 0; v < 3; v++)
+                for (int h = 0; h < 3; h++)
                 {
                     List<IEnumerable<int>> tryNumberList = new List<IEnumerable<int>>();
 
@@ -138,34 +109,34 @@ namespace NumberPlace
                         upperSettableNumberList = settableNumbersArray[0].Except(tryNumberList).IntersectForDoubleArray(usableNumbers.Permutation(3)).ToList();
                         if (!upperSettableNumberList.Any())
                         {
-                            tryNumberList.Add(upperNumberList[v]);
+                            tryNumberList.Add(upperNumberList[h]);
                             continue;
                         }
                         else
                         {
-                            upperNumberList[v] = upperSettableNumberList.RandomGet();
+                            upperNumberList[h] = upperSettableNumberList.RandomGet();
                         }
                         
 
-                        usableNumbers= numberArray.Except(middleNumberList.SelectMany(x => x)).Except(upperNumberList[v]).ToList();
+                        usableNumbers= numberArray.Except(middleNumberList.SelectMany(x => x)).Except(upperNumberList[h]).ToList();
                         middleSettableNumberList = settableNumbersArray[1].IntersectForDoubleArray(usableNumbers.Permutation(3)).ToList();
                         if (!middleSettableNumberList.Any())
                         {
-                            upperNumberList[v] = Enumerable.Empty<int>();
-                            tryNumberList.Add(upperNumberList[v]);
+                            upperNumberList[h] = Enumerable.Empty<int>();
+                            tryNumberList.Add(upperNumberList[h]);
                             continue;
                         }
                         else
                         {
-                            middleNumberList[v] = middleSettableNumberList.RandomGet();
+                            middleNumberList[h] = middleSettableNumberList.RandomGet();
                         }
 
-                        usableNumbers = numberArray.Except(bottomNumberList.SelectMany(x => x)).Except(upperNumberList[v]).Except(middleNumberList[v]).ToList();
+                        usableNumbers = numberArray.Except(bottomNumberList.SelectMany(x => x)).Except(upperNumberList[h]).Except(middleNumberList[h]).ToList();
                         if (usableNumbers.Count() < 3)
                         {
-                            upperNumberList[v] = Enumerable.Empty<int>();
-                            middleNumberList[v] = Enumerable.Empty<int>();
-                            tryNumberList.Add(upperNumberList[v]);
+                            upperNumberList[h] = Enumerable.Empty<int>();
+                            middleNumberList[h] = Enumerable.Empty<int>();
+                            tryNumberList.Add(upperNumberList[h]);
                             continue;
                         }
 
@@ -173,13 +144,13 @@ namespace NumberPlace
 
                         if (!bottomSettableNumberList.Any())
                         {
-                            upperNumberList[v] = Enumerable.Empty<int>();
-                            middleNumberList[v] = Enumerable.Empty<int>();
-                            tryNumberList.Add(upperNumberList[v]);
+                            upperNumberList[h] = Enumerable.Empty<int>();
+                            middleNumberList[h] = Enumerable.Empty<int>();
+                            tryNumberList.Add(upperNumberList[h]);
                         }
                         else
                         {
-                            bottomNumberList[v] = bottomSettableNumberList.RandomGet();
+                            bottomNumberList[h] = bottomSettableNumberList.RandomGet();
                             break;
                         }
                     }
@@ -187,7 +158,7 @@ namespace NumberPlace
                     tryNumberList.Clear();
                 }
 
-                for (int v = 0; v < 3; v++)
+                for (int h = 0; h < 3; h++)
                 {
                     for (int y = 0; y < 3; y++)
                     {
@@ -195,19 +166,19 @@ namespace NumberPlace
                         switch (y)
                         {
                             case 0:
-                                setNumberList = upperNumberList[v].ToList();
+                                setNumberList = upperNumberList[h].ToList();
                                 break;
                             case 1:
-                                setNumberList = middleNumberList[v].ToList();
+                                setNumberList = middleNumberList[h].ToList();
                                 break;
                             case 2:
-                                setNumberList = bottomNumberList[v].ToList();
+                                setNumberList = bottomNumberList[h].ToList();
                                 break;
                         }
 
-                        for (int h = 0; h < 3; h++)
+                        for (int v = 0; v < 3; v++)
                         {
-                            numberPlace[y, x][h, v] = setNumberList[h];
+                            numberPlaceManager.SetNumber(x, y, h, v, setNumberList[v]);
                         }
                     }
                 }
