@@ -11,21 +11,34 @@ namespace NumberPlace
         [SerializeField] private NumberPlaceViewer numberPlaceViewer;
 
         [SerializeField] private QuestionGenerator questionGenerator;
-
         [SerializeField] private QuestionViewer questionViewer;
 
-        private void Start()
+        [SerializeField] private NumberPlaceResolver numberPlaceResolver;
+
+        [SerializeField] private SquareManager squareManager;
+        [SerializeField] private SquareSelector squareSelector;
+
+        private async void Start()
         {
+            squareManager.Init();
+
             numberPlaceGenerator.GenerateNumberPlace();
             Debug.Log("êîóÒÇÃê∂ê¨äÆóπ");
 
-            //numberPlaceViewer.ViewNumberPlace();
+            int emptyAmount = GameSetting.GetEmptyAmount();
 
-            //await UniTask.Yield(this.GetCancellationTokenOnDestroy());
+            while (true)
+            {
+                questionGenerator.GenerateQuestion(emptyAmount);
+                questionViewer.ViewQuestion();
 
-            questionGenerator.GenerateQuestion(20);
+                squareSelector.SetSelectedAction();
 
-            questionViewer.ViewQuestion();
+                var success=await numberPlaceResolver.Resolve();
+
+                if (success)
+                    break;
+            }
         }
     }
 }

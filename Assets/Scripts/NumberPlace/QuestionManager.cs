@@ -10,10 +10,10 @@ namespace NumberPlace
 
         private void Awake()
         {
-            InitNumberPlace();
+            InitQuestion();
         }
 
-        private void InitNumberPlace()
+        private void InitQuestion()
         {
             for (int x = 0; x < 3; x++)
             {
