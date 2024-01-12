@@ -18,6 +18,8 @@ namespace NumberPlace
         [SerializeField] private SquareManager squareManager;
         [SerializeField] private SquareSelector squareSelector;
 
+        [SerializeField] private GameObject generatingPanel;
+
         private async void Start()
         {
             squareManager.Init();
@@ -40,6 +42,8 @@ namespace NumberPlace
                 if (success)
                     break;
             }
+
+            generatingPanel.SetActive(false);
         }
     }
 }

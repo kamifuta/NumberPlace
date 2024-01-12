@@ -93,6 +93,9 @@ namespace NumberPlace
             return true;
         }
 
+        /// <summary>
+        /// 空欄の場所と当てはめが可能な数字を取得
+        /// </summary>
         private void SearchEmptyPoints()
         {
             for (int x = 0; x < 3; x++)
@@ -114,6 +117,7 @@ namespace NumberPlace
             }
         }
 
+        //指定したマスに選択可能な数字の配列を取得する
         private int[] GetUsableNumbers(int x, int y, int v, int h)
         {
             int baseX = x;
@@ -136,12 +140,14 @@ namespace NumberPlace
                     {
                         for (v = 0; v < 3; v++)
                         {
+                            //同じブロック内にある数字は使えない
                             if (x == baseX && y == baseY)
                             {
                                 usedNumbers.Add(answer[y, x][v, h]);
                             }
                             else if(x == baseX && y != baseY)
                             {
+                                //縦列にある数字は使えない
                                 if (h == baseH)
                                 {
                                     usedNumbers.Add(answer[y, x][v, h]);
@@ -149,6 +155,7 @@ namespace NumberPlace
                             }
                             else if(x != baseX && y == baseY)
                             {
+                                //横列にある数字は使えない
                                 if (v == baseV)
                                 {
                                     usedNumbers.Add(answer[y, x][v, h]);
@@ -162,11 +169,15 @@ namespace NumberPlace
             return numberList.Except(usedNumbers).ToArray();
         }
 
+        /// <summary>
+        /// 確定している空欄を埋める
+        /// </summary>
+        /// <returns></returns>
         private bool FillConfiredPoints()
         {
             bool result = false;
 
-            //確定しているマスを埋める
+            //選択できる数字が一つしかないなら確定
             var confiredEmptyPoint = emptyPointList.Where(x => x.usableNumberArray.Count() == 1).ToList();
             if (confiredEmptyPoint.Any())
             {
@@ -183,6 +194,10 @@ namespace NumberPlace
             return result;
         }
 
+        /// <summary>
+        /// 縦列で確定している空欄を埋める
+        /// </summary>
+        /// <returns></returns>
         private bool TryFillVerticalPoints()
         {
             //縦で確定しているマスを埋める
@@ -190,12 +205,27 @@ namespace NumberPlace
             {
                 for (int h = 0; h < 3; h++)
                 {
+                    //同じ縦列の空欄を取得する
                     var verticalEmptyPointList = emptyPointList.Where(point => point.x == x && point.h == h).ToList();
                     if (verticalEmptyPointList.Count <= 2)
                     {
                         continue;
                     }
 
+                    //各空欄の中で、ある数字が使える空欄が一つしかないなら確定
+                    for(int n = 1; n <= 9; n++)
+                    {
+                        var points = verticalEmptyPointList.Where(p => p.usableNumberArray.Any(numberList => numberList == n)).ToList();
+                        if (points.Count == 1)
+                        {
+                            answer[points[0].y, points[0].x][points[0].v, points[0].h] = n;
+                            emptyPointList.Remove(points[0]);
+                            return true;
+                        }
+                    }
+
+                    //列の中で、ある空欄の使用可能な数字(numbers)が、同じ空欄が数字の数と同じだけあり、
+                    //使用可能な数字からnumbersを除いた数字の数が一つしかないなら確定する
                     foreach(var numbers in verticalEmptyPointList.Select(point=>point.usableNumberArray))
                     {
                         var list = verticalEmptyPointList.Where(p => p.usableNumberArray.SequenceEqual(numbers)).ToList();
@@ -219,6 +249,10 @@ namespace NumberPlace
             return false;
         }
 
+        /// <summary>
+        /// 横列で確定している空欄を埋める
+        /// </summary>
+        /// <returns></returns>
         private bool TryFillHolizontalPoints()
         {
             //横で確定しているマスを埋める
@@ -226,12 +260,27 @@ namespace NumberPlace
             {
                 for (int v = 0; v < 3; v++)
                 {
+                    //同じ横列の空欄を取得する
                     var holizontalEmptyPointList = emptyPointList.Where(point => point.y == y && point.v == v).ToList();
                     if (holizontalEmptyPointList.Count <= 2)
                     {
                         continue;
                     }
 
+                    //各空欄の中で、ある数字が使える空欄が一つしかないなら確定
+                    for (int n = 1; n <= 9; n++)
+                    {
+                        var points = holizontalEmptyPointList.Where(p => p.usableNumberArray.Any(numberList => numberList == n)).ToList();
+                        if (points.Count == 1)
+                        {
+                            answer[points[0].y, points[0].x][points[0].v, points[0].h] = n;
+                            emptyPointList.Remove(points[0]);
+                            return true;
+                        }
+                    }
+
+                    //列の中で、ある空欄の使用可能な数字(numbers)が、同じ空欄が数字の数と同じだけあり、
+                    //使用可能な数字からnumbersを除いた数字の数が一つしかないなら確定する
                     foreach (var numbers in holizontalEmptyPointList.Select(point => point.usableNumberArray))
                     {
                         var list = holizontalEmptyPointList.Where(p => p.usableNumberArray.SequenceEqual(numbers)).ToList();
@@ -262,12 +311,27 @@ namespace NumberPlace
             {
                 for (int y = 0; y < 3; y++)
                 {
+                    //同じブロックの空欄を取得する
                     var blockEmptyPointList = emptyPointList.Where(point => point.x == x && point.y == y).ToList();
                     if (blockEmptyPointList.Count <= 2)
                     {
                         continue;
                     }
 
+                    //各空欄の中で、ある数字が使える空欄が一つしかないなら確定
+                    for (int n = 1; n <= 9; n++)
+                    {
+                        var points = blockEmptyPointList.Where(p => p.usableNumberArray.Any(numberList => numberList == n)).ToList();
+                        if (points.Count == 1)
+                        {
+                            answer[points[0].y, points[0].x][points[0].v, points[0].h] = n;
+                            emptyPointList.Remove(points[0]);
+                            return true;
+                        }
+                    }
+
+                    //列の中で、ある空欄の使用可能な数字(numbers)が、同じ空欄が数字の数と同じだけあり、
+                    //使用可能な数字からnumbersを除いた数字の数が一つしかないなら確定する
                     foreach (var numbers in blockEmptyPointList.Select(point => point.usableNumberArray))
                     {
                         var list = blockEmptyPointList.Where(p => p.usableNumberArray.SequenceEqual(numbers)).ToList();

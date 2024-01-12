@@ -24,9 +24,11 @@ namespace NumberPlace
         /// </summary>
         private void AlineHorizintalNumberPlace()
         {
+            //ブロックと横ラインで使用された数字を格納するリスト
             List<(int block, IEnumerable<int> numberList)> setNumbersListOnBlock = new List<(int block, IEnumerable<int> numberList)>();
             List<(int line, IEnumerable<int> numberList)> setNumbersListOnLine = new List<(int line, IEnumerable<int> numberList)>();
 
+            //ブロック内の横列を一列ずつ埋める
             for(int y = 0; y < 3; y++)
             {
                 for (int v = 0; v < 3; v++)
@@ -35,13 +37,19 @@ namespace NumberPlace
                     {
                         int block = y * 3 + x;
                         int line = y * 3 + v;
+                        //横とブロックで使用されてる数字
                         IEnumerable<int> usedNumberList = setNumbersListOnBlock.Where(t => t.block == block).Concat(setNumbersListOnLine.Where(t => t.line == line)).SelectMany(t => t.numberList);
+                        //使うことができる数字
                         IEnumerable<int> usableNumbers = numberArray.Except(usedNumberList).ToArray();
+                        //セット可能な順列を取得する
                         IEnumerable<IEnumerable<int>> selectablePermutationList = usableNumbers.Permutation(3);
                         var permutation = selectablePermutationList.RandomGet();
 
+
+                        //中央縦列ブロックの中央横列をセットするときだけ注意が必要
                         if (x == 1)
                         {
+                            //使わなければならない数字を取得する
                             IEnumerable<int> mustUseNumbers = setNumbersListOnBlock.Where(t => t.block == block + 1).SelectMany(t => t.numberList).Except(setNumbersListOnLine.Where(t => t.line == line).SelectMany(t => t.numberList));
                             selectablePermutationList = selectablePermutationList.Where(list => list.Any(mustUseNumbers));
 
@@ -51,6 +59,7 @@ namespace NumberPlace
                         setNumbersListOnBlock.Add((block, permutation));
                         setNumbersListOnLine.Add((line, permutation));
 
+                        //選択した数字をセット
                         for (int h = 0; h < 3; h++)
                         {
                             numberPlaceManager.SetNumber(x, y, h, v, permutation.ElementAt(h));
@@ -67,6 +76,7 @@ namespace NumberPlace
         {
             for (int x = 0; x < 3; x++)
             {
+                //選択可能な順列を格納しておく
                 List<IEnumerable<IEnumerable<int>>> settableNumbersArray = new List<IEnumerable<IEnumerable<int>>>();
 
                 for (int y = 0; y < 3; y++)
@@ -89,15 +99,17 @@ namespace NumberPlace
                     settableNumbersArray.Add(list);
                 }
 
+                //ブロックごとの数字の順列を格納するリスト
                 IEnumerable<int>[] upperNumberList = new IEnumerable<int>[3] { Enumerable.Empty<int>(), Enumerable.Empty<int>(), Enumerable.Empty<int>() };
                 IEnumerable<int>[] middleNumberList = new IEnumerable<int>[3] { Enumerable.Empty<int>(), Enumerable.Empty<int>(), Enumerable.Empty<int>() };
                 IEnumerable<int>[] bottomNumberList = new IEnumerable<int>[3] { Enumerable.Empty<int>(), Enumerable.Empty<int>(), Enumerable.Empty<int>() };
 
                 for (int h = 0; h < 3; h++)
                 {
+                    //きれいに数字をセットできなかったときの順列を入れておく
                     List<IEnumerable<int>> tryNumberList = new List<IEnumerable<int>>();
 
-                    
+                    //それぞれのブロックで選択可能な順列のリスト
                     IEnumerable<IEnumerable<int>> upperSettableNumberList;
                     IEnumerable<IEnumerable<int>> middleSettableNumberList;
                     IEnumerable<IEnumerable<int>> bottomSettableNumberList;
@@ -105,6 +117,7 @@ namespace NumberPlace
 
                     while (true)
                     {
+                        //上部のブロックで選択可能な順列の取得
                         usableNumbers = numberArray.Except(upperNumberList.SelectMany(x => x)).ToList();
                         upperSettableNumberList = settableNumbersArray[0].Except(tryNumberList).IntersectForDoubleArray(usableNumbers.Permutation(3)).ToList();
                         if (!upperSettableNumberList.Any())
@@ -117,7 +130,7 @@ namespace NumberPlace
                             upperNumberList[h] = upperSettableNumberList.RandomGet();
                         }
                         
-
+                        //中部のブロックで選択可能な順列の取得
                         usableNumbers= numberArray.Except(middleNumberList.SelectMany(x => x)).Except(upperNumberList[h]).ToList();
                         middleSettableNumberList = settableNumbersArray[1].IntersectForDoubleArray(usableNumbers.Permutation(3)).ToList();
                         if (!middleSettableNumberList.Any())
@@ -131,6 +144,7 @@ namespace NumberPlace
                             middleNumberList[h] = middleSettableNumberList.RandomGet();
                         }
 
+                        //下部のブロックで使用可能な数字の取得
                         usableNumbers = numberArray.Except(bottomNumberList.SelectMany(x => x)).Except(upperNumberList[h]).Except(middleNumberList[h]).ToList();
                         if (usableNumbers.Count() < 3)
                         {
@@ -158,6 +172,7 @@ namespace NumberPlace
                     tryNumberList.Clear();
                 }
 
+                //決められた数字をセットしていく
                 for (int h = 0; h < 3; h++)
                 {
                     for (int y = 0; y < 3; y++)
