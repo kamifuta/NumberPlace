@@ -20,12 +20,21 @@ namespace NumberPlace
         [SerializeField] private Button closeButton;
         [SerializeField] private Button openButton;
 
+        [SerializeField] private GameObject retirePanel;
+        [SerializeField] private Button retireButton;
+        [SerializeField] private Button retireCloseButton;
+        [SerializeField] private Button reallyRetireButton;
+
         private void Start()
         {
             retryButton.onClick.AddListener(() => LoadNextScene("MainScene"));
             backTitleButton.onClick.AddListener(() => LoadNextScene("TitleScene"));
-            closeButton.onClick.AddListener(() => ClosePanel());
-            openButton.onClick.AddListener(() => OpenPanel());
+            closeButton.onClick.AddListener(() => CloseResultPanel());
+            openButton.onClick.AddListener(() => OpenResultPanel());
+
+            retireButton.onClick.AddListener(() => OpenRetirePanel());
+            retireCloseButton.onClick.AddListener(() => CloseRetirePanel());
+            reallyRetireButton.onClick.AddListener(() => Retire());
 
             answerChecker.resultObservable
                 .Subscribe(result =>
@@ -45,20 +54,42 @@ namespace NumberPlace
                 case ResultType.Failure:
                     resultText.text = "Failed...";
                     break;
+                case ResultType.Retire:
+                    resultText.text = "Retired...";
+                    break;
             }
 
             resultPanel.SetActive(true);
         }
 
-        private void ClosePanel()
+        private void CloseResultPanel()
         {
             resultPanel.SetActive(false);
             openButton.gameObject.SetActive(true);
         }
 
-        private void OpenPanel()
+        private void OpenResultPanel()
         {
             resultPanel.SetActive(true);
+        }
+
+        private void CloseRetirePanel()
+        {
+            retirePanel.SetActive(false);
+        }
+
+        private void OpenRetirePanel()
+        {
+            retirePanel.SetActive(true);
+        }
+
+        private void Retire()
+        {
+            retireButton.interactable = false;
+
+            answerChecker.Retire();
+            CloseRetirePanel();
+            ViewResult(ResultType.Retire);
         }
 
         private void LoadNextScene(string sceneName)

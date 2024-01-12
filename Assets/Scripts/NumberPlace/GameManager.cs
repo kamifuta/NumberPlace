@@ -26,6 +26,7 @@ namespace NumberPlace
             Debug.Log("”—ñ‚Ì¶¬Š®—¹");
 
             int emptyAmount = GameSetting.GetEmptyAmount();
+            Debug.Log(emptyAmount);
 
             while (true)
             {

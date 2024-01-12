@@ -86,7 +86,7 @@ namespace NumberPlace
                 if (TryFillBlockPoints())
                     continue;
 
-                Debug.Log("muri");
+                //Debug.Log("muri");
                 return false;
             }
 
@@ -175,7 +175,7 @@ namespace NumberPlace
                     answer[point.y, point.x][point.v, point.h] = point.usableNumberArray[0];
                     emptyPointList.Remove(point);
 
-                    squareManager.GetSquare(point.x, point.y, point.h, point.v).WriteNumber(point.usableNumberArray[0]);
+                    //squareManager.GetSquare(point.x, point.y, point.h, point.v).WriteNumber(point.usableNumberArray[0]);
                     result = true;
                 }
             }
@@ -208,7 +208,7 @@ namespace NumberPlace
                                 answer[list[0].y, list[0].x][list[0].v, list[0].h] = n;
                                 emptyPointList.Remove(list[0]);
 
-                                squareManager.GetSquare(list[0].x, list[0].y, list[0].h, list[0].v).WriteNumber(n);
+                                //squareManager.GetSquare(list[0].x, list[0].y, list[0].h, list[0].v).WriteNumber(n);
                                 return true;
                             }
                         }
@@ -244,7 +244,7 @@ namespace NumberPlace
                                 answer[list[0].y, list[0].x][list[0].v, list[0].h] = n;
                                 emptyPointList.Remove(list[0]);
 
-                                squareManager.GetSquare(list[0].x, list[0].y, list[0].h, list[0].v).WriteNumber(n);
+                                //squareManager.GetSquare(list[0].x, list[0].y, list[0].h, list[0].v).WriteNumber(n);
                                 return true;
                             }
                         }
@@ -280,7 +280,7 @@ namespace NumberPlace
                                 answer[list[0].y, list[0].x][list[0].v, list[0].h] = n;
                                 emptyPointList.Remove(list[0]);
 
-                                squareManager.GetSquare(list[0].x, list[0].y, list[0].h, list[0].v).WriteNumber(n);
+                                //squareManager.GetSquare(list[0].x, list[0].y, list[0].h, list[0].v).WriteNumber(n);
                                 return true;
                             }
                         }

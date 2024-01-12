@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NumberPlace
@@ -26,6 +27,8 @@ namespace NumberPlace
                 }
             }
 
+            List<(int x, int y, int h, int v)> list = new List<(int x, int y, int h, int v)>();
+
             for(int i = 0; i < emptyAmount; i++)
             {
                 var x = Random.Range(0, 3);
@@ -33,15 +36,14 @@ namespace NumberPlace
                 var v = Random.Range(0, 3);
                 var h = Random.Range(0, 3);
 
-                if (numberPlaceManager.GetNumber(x, y, h, v) != 0)
-                {
-                    questionManager.SetNumber(x, y, h, v, 0);
-                }
-                else
+                if (list.Any(t =>  t== (x, y, h, v)))
                 {
                     i--;
                     continue;
                 }
+
+                list.Add((x, y, h, v));
+                questionManager.SetNumber(x, y, h, v, 0);
             }
         }
     }

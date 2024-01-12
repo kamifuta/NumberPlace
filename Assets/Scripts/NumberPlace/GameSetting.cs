@@ -15,9 +15,9 @@ namespace NumberPlace
                 case DifficultType.Easy:
                     return Random.Range(20, 26);
                 case DifficultType.Normal:
-                    return Random.Range(35, 41);
+                    return Random.Range(30, 41);
                 case DifficultType.Hard:
-                    return Random.Range(50, 56);
+                    return Random.Range(45, 51);
             }
 
             return 20;

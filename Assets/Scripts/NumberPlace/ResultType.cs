@@ -8,5 +8,6 @@ namespace NumberPlace
     {
         Success,
         Failure,
+        Retire,
     }
 }

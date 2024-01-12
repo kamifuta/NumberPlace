@@ -10,7 +10,6 @@ namespace NumberPlace
     public class SquareSelector : MonoBehaviour
     {
         [SerializeField] private SquareManager squareManager;
-        [SerializeField] private QuestionManager questionManager;
 
         public Square selectedSquare { get; private set; }
         private IEnumerable<Square> emphasizedSquares = Enumerable.Empty<Square>();
@@ -27,11 +26,6 @@ namespace NumberPlace
                         {
                             var square = squareManager.GetSquare(x, y, h, v);
 
-                            int squareX = x;
-                            int squareY = y;
-                            int squareH = h;
-                            int squareV = v;
-
                             square.OnMouseDownAsObservable()
                                 .Subscribe(_ =>
                                 {
@@ -42,12 +36,16 @@ namespace NumberPlace
                                     }
 
                                     selectedSquare = square;
-                                    emphasizedSquares = GetEmphasizeSquares(questionManager.GetNumber(squareX, squareY, squareH, squareV));
-
-                                    foreach (var emphasizedSquare in emphasizedSquares)
+                                    if (selectedSquare.NumberText != "")
                                     {
-                                        emphasizedSquare.SetEmphasis(true);
+                                        emphasizedSquares = GetEmphasizeSquares(int.Parse(selectedSquare.NumberText));
+
+                                        foreach (var emphasizedSquare in emphasizedSquares)
+                                        {
+                                            emphasizedSquare.SetEmphasis(true);
+                                        }
                                     }
+
                                     square.SetSelected(true);
                                 })
                                 .AddTo(this);
@@ -74,10 +72,11 @@ namespace NumberPlace
                     {
                         for (int v = 0; v < 3; v++)
                         {
-                            var number = questionManager.GetNumber(x, y, h, v);
-                            if (number == n)
+                            var square = squareManager.GetSquare(x, y, h, v);
+                            var number = square.NumberText;
+                            if (number == n.ToString())
                             {
-                                resultList.Add(squareManager.GetSquare(x, y, h, v));
+                                resultList.Add(square);
                             }
                         }
                     }

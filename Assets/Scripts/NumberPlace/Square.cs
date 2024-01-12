@@ -31,6 +31,7 @@ namespace NumberPlace
             {
                 numberText.text = "";
                 IsWritable = true;
+                numberText.fontStyle = FontStyles.Normal;
                 return;
             }
 
@@ -71,6 +72,13 @@ namespace NumberPlace
             }
 
             numberText.text = number.ToString();
+        }
+
+        public void ViewCollect(int number)
+        {
+            numberText.text = number.ToString();
+            numberText.color = Color.blue;
+            IsWritable = false;
         }
 
         public void SetTextColor(Color color)

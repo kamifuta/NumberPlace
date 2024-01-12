@@ -87,6 +87,28 @@ namespace NumberPlace
             resultSubject.Dispose();
         }
 
+        public void Retire()
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    for (int h = 0; h < 3; h++)
+                    {
+                        for (int v = 0; v < 3; v++)
+                        {
+                            var square = squareManager.GetSquare(x, y, h, v);
+                            var number = numberPlaceManager.GetNumber(x, y, h, v);
+                            if (square.NumberText != number.ToString())
+                            {
+                                square.ViewCollect(number);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void ViewMisstake(IEnumerable<Square> misstaleSquareList)
         {
             foreach(var square in misstaleSquareList)
